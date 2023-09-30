@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:insta_clone/resources/auth_method.dart';
 import 'package:insta_clone/utils/colors.dart';
+import 'package:insta_clone/utils/utils.dart';
 import 'package:insta_clone/widgets/text_field_input.dart';
 
 class SignUpSreen extends StatefulWidget {
@@ -16,6 +20,7 @@ class _SignUpSreenState extends State<SignUpSreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
+  Uint8List? _image;
 
   @override
   void dispose() {
@@ -51,18 +56,23 @@ class _SignUpSreenState extends State<SignUpSreen> {
             //circular widget to accept and show our selected file
             Stack(
               children: [
-                const CircleAvatar(
+                _image!=null
+                ?CircleAvatar(
+                  radius: 64,
+                  backgroundImage: MemoryImage(_image!),
+                )
+                :const CircleAvatar(
                   radius: 64,
                   backgroundImage: NetworkImage(
-                      "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1385&q=80"),
+                      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"),
                 ),
                 Positioned(
                   bottom: -5,
                   left: 80,
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: selectImage,
                     icon: const Icon(Icons.add_a_photo),
-                    color: Colors.yellow.shade200,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -101,7 +111,8 @@ class _SignUpSreenState extends State<SignUpSreen> {
                     email: _emailController.text,
                     password: _passwordController.text,
                     username: _usernameController.text,
-                    bio: _bioController.text);
+                    bio: _bioController.text,
+                    file: _image!);
                     print(res);
               },
               child: Container(
@@ -139,7 +150,7 @@ class _SignUpSreenState extends State<SignUpSreen> {
                   ),
                 ),
                 SizedBox(
-                  width: 20,
+                  width: 10,
                 ),
                 GestureDetector(
                   onTap: () {},
@@ -159,5 +170,15 @@ class _SignUpSreenState extends State<SignUpSreen> {
         ),
       )),
     );
+  }
+
+  void selectImage()async {
+
+   Uint8List im= await pickImage(ImageSource.gallery);
+   setState(() {
+     _image=im;
+   });
+
+
   }
 }

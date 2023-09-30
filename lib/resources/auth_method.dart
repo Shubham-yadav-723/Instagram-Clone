@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,13 +18,14 @@ class AuthMethods{
     required String password,
     required String username,
     required String bio,
-    //required Uint8List file
+    required Uint8List file
 
   }) async{
     String res="some error occurred";
     try{
 
-      if(email.isNotEmpty || password.isNotEmpty || username.isNotEmpty || bio.isNotEmpty  ){
+      // ignore: unnecessary_null_comparison
+      if(email.isNotEmpty || password.isNotEmpty || username.isNotEmpty || bio.isNotEmpty ||file != null ){
         //register the user
        UserCredential cred= await _auth.createUserWithEmailAndPassword(email: email, password: password);
        print(cred.user!.uid);
