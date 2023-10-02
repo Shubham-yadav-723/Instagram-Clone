@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:insta_clone/resources/auth_method.dart';
+import 'package:insta_clone/responsive/mobile_Screen_layout.dart';
+import 'package:insta_clone/responsive/responsive_layout_screen.dart';
+import 'package:insta_clone/responsive/web_screen_layout.dart';
+import 'package:insta_clone/screens/signup_screen.dart';
 import 'package:insta_clone/utils/colors.dart';
+import 'package:insta_clone/utils/utils.dart';
 import 'package:insta_clone/widgets/text_field_input.dart';
 
 class LoginSreen extends StatefulWidget {
@@ -13,6 +19,7 @@ class LoginSreen extends StatefulWidget {
 class _LoginSreenState extends State<LoginSreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -59,8 +66,8 @@ class _LoginSreenState extends State<LoginSreen> {
             const SizedBox(height: 24),
 
             InkWell(
+              onTap: loginUser,
               child: Container(
-                child: const Text("Log In"),
                 width: double.infinity,
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -72,6 +79,13 @@ class _LoginSreenState extends State<LoginSreen> {
                   ),
                   color: blueColor,
                 ),
+                child: _isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: primaryColor,
+                        ),
+                      )
+                    : const Text("Log In"),
               ),
             ),
             const SizedBox(
@@ -86,7 +100,6 @@ class _LoginSreenState extends State<LoginSreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  
                   child: Container(
                     child: const Text("Don't have an account?"),
                     padding: const EdgeInsets.symmetric(
@@ -94,11 +107,19 @@ class _LoginSreenState extends State<LoginSreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(
+                  width: 20,
+                ),
                 GestureDetector(
-                  onTap: (){},
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const SignUpSreen()));
+                  },
                   child: Container(
-                    child: const Text("Sign Up.",style: TextStyle(fontWeight: FontWeight.bold),),
+                    child: const Text(
+                      "Sign Up.",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     padding: const EdgeInsets.symmetric(
                       vertical: 8,
                     ),
@@ -110,5 +131,29 @@ class _LoginSreenState extends State<LoginSreen> {
         ),
       )),
     );
+  }
+
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().loginUser(
+        email: _emailController.text, password: _passwordController.text);
+
+    if (res == "success") {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            mobileScreenLayout: mobileScreenLayout(),
+            webScreenLayout: webScreenLayout(),
+          ),
+        ),
+      );
+    } else {
+      showSnackBar(res, context);
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 }

@@ -6,51 +6,66 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:insta_clone/resources/storage_method.dart';
 
-
-class AuthMethods{
-  final FirebaseAuth _auth=FirebaseAuth.instance;
-  final FirebaseFirestore _firestore=FirebaseFirestore.instance; 
-
+class AuthMethods {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   //for sign up user
 
-  Future<String> signUpUser({
-    required String email,
-    required String password,
-    required String username,
-    required String bio,
-    required Uint8List file
-
-  }) async{
-    String res="some error occurred";
-    try{
-
+  Future<String> signUpUser(
+      {required String email,
+      required String password,
+      required String username,
+      required String bio,
+      required Uint8List file}) async {
+    String res = "some error occurred";
+    try {
       // ignore: unnecessary_null_comparison
-      if(email.isNotEmpty || password.isNotEmpty || username.isNotEmpty || bio.isNotEmpty ||file != null ){
+      if (email.isNotEmpty ||
+          password.isNotEmpty ||
+          username.isNotEmpty ||
+          bio.isNotEmpty ||
+          file != null) {
         //register the user
-       UserCredential cred= await _auth.createUserWithEmailAndPassword(email: email, password: password);
-       print(cred.user!.uid);
-       String photoUrl=await StorageMethods().uploadImageToStorage('profilePics', file, false);
-       //adding useer
-       _firestore.collection('users').doc(cred.user!.uid).set({
-        'username':username,
-        'uid':cred.user!.uid,
-        'email':email,
-        'bio':bio,
-        'followers':[],
-        'following': [],
-        'photoUrl':photoUrl,
-       });
+        UserCredential cred = await _auth.createUserWithEmailAndPassword(
+            email: email, password: password);
+        print(cred.user!.uid);
+        String photoUrl = await StorageMethods()
+            .uploadImageToStorage('profilePics', file, false);
+        //adding useer
+        _firestore.collection('users').doc(cred.user!.uid).set({
+          'username': username,
+          'uid': cred.user!.uid,
+          'email': email,
+          'bio': bio,
+          'followers': [],
+          'following': [],
+          'photoUrl': photoUrl,
+        });
 
-       res="success";
+        res = "success";
       }
-
-    }
-    catch(err){
+    } catch (err) {
       res = err.toString();
-
     }
     return res;
-    
+  }
+
+  Future<String> loginUser(
+      {required String email, required String password}) async {
+    String res = "some error occured";
+    try {
+      if (email.isNotEmpty || password.isNotEmpty) {
+        await _auth.signInWithEmailAndPassword(
+            email: email, password: password);
+        res = "success";
+      }else{
+        res="please enter valid credentials";
+      }
+    } catch (err) {
+      res = err.toString();
+    }
+
+    return res;
   }
 }

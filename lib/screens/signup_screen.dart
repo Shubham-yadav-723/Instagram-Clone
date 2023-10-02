@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:insta_clone/resources/auth_method.dart';
+import 'package:insta_clone/responsive/mobile_Screen_layout.dart';
+import 'package:insta_clone/responsive/responsive_layout_screen.dart';
+import 'package:insta_clone/responsive/web_screen_layout.dart';
+import 'package:insta_clone/screens/login_Screen.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/utils/utils.dart';
 import 'package:insta_clone/widgets/text_field_input.dart';
@@ -21,6 +25,7 @@ class _SignUpSreenState extends State<SignUpSreen> {
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   Uint8List? _image;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -56,16 +61,16 @@ class _SignUpSreenState extends State<SignUpSreen> {
             //circular widget to accept and show our selected file
             Stack(
               children: [
-                _image!=null
-                ?CircleAvatar(
-                  radius: 64,
-                  backgroundImage: MemoryImage(_image!),
-                )
-                :const CircleAvatar(
-                  radius: 64,
-                  backgroundImage: NetworkImage(
-                      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"),
-                ),
+                _image != null
+                    ? CircleAvatar(
+                        radius: 64,
+                        backgroundImage: MemoryImage(_image!),
+                      )
+                    : const CircleAvatar(
+                        radius: 64,
+                        backgroundImage: NetworkImage(
+                            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"),
+                      ),
                 Positioned(
                   bottom: -5,
                   left: 80,
@@ -106,17 +111,15 @@ class _SignUpSreenState extends State<SignUpSreen> {
             const SizedBox(height: 24),
 
             InkWell(
-              onTap: () async {
-                String res = await AuthMethods().signUpUser(
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                    username: _usernameController.text,
-                    bio: _bioController.text,
-                    file: _image!);
-                    print(res);
-              },
+              onTap: signUpUser,
               child: Container(
-                child: const Text("Sign Up"),
+                child: _isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text("Sign Up"),
                 width: double.infinity,
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -153,7 +156,10 @@ class _SignUpSreenState extends State<SignUpSreen> {
                   width: 10,
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const LoginSreen()));
+                  },
                   child: Container(
                     child: const Text(
                       "Log In.",
@@ -172,13 +178,38 @@ class _SignUpSreenState extends State<SignUpSreen> {
     );
   }
 
-  void selectImage()async {
+  void selectImage() async {
+    Uint8List im = await pickImage(ImageSource.gallery);
+    setState(() {
+      _image = im;
+    });
+  }
 
-   Uint8List im= await pickImage(ImageSource.gallery);
-   setState(() {
-     _image=im;
-   });
-
-
+  void signUpUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().signUpUser(
+        email: _emailController.text,
+        password: _passwordController.text,
+        username: _usernameController.text,
+        bio: _bioController.text,
+        file: _image!);
+    setState(() {
+      _isLoading = false;
+    });
+    if (res != "success") {
+      showSnackBar(res, context);
+    } else {
+      //do nothing
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            mobileScreenLayout: mobileScreenLayout(),
+            webScreenLayout: webScreenLayout(),
+          ),
+        ),
+      );
+    }
   }
 }
