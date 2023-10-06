@@ -7,7 +7,6 @@ import 'package:insta_clone/responsive/mobile_Screen_layout.dart';
 import 'package:insta_clone/responsive/responsive_layout_screen.dart';
 import 'package:insta_clone/responsive/web_screen_layout.dart';
 import 'package:insta_clone/screens/login_Screen.dart';
-import 'package:insta_clone/screens/signup_screen.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:provider/provider.dart';
 

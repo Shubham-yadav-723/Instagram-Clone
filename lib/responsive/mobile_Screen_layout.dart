@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_clone/utils/colors.dart';
+import 'package:insta_clone/utils/global_variable.dart';
 
 class mobileScreenLayout extends StatefulWidget {
   const mobileScreenLayout({super.key});
@@ -35,14 +36,8 @@ void navigationTapped(int page) {
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
-        children: [
-          Text("home"),
-          Text("search"),
-          Text("psot"),
-          Text("not"),
-          Text("prog"),
-
-        ],
+        // ignore: sort_child_properties_last
+        children: homeScreenItems,
         physics: const NeverScrollableScrollPhysics(),
         controller: pageController,
         onPageChanged: onPageChanged,
