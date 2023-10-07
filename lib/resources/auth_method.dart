@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unnecessary_null_comparison, duplicate_ignore
 
 import 'dart:typed_data';
 
@@ -10,6 +10,15 @@ import 'package:insta_clone/resources/storage_method.dart';
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<model.User> getUserDetails() async{
+    User currentUser=_auth.currentUser!;
+
+    DocumentSnapshot snap=await _firestore.collection('users').doc(currentUser.uid).get();
+
+    return model.User.fromSnap(snap);
+    
+  }
 
   //for sign up user
 
@@ -26,7 +35,7 @@ class AuthMethods {
           password.isNotEmpty ||
           username.isNotEmpty ||
           bio.isNotEmpty ||
-          file != null) {
+          file!= null) {
         //register the user
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
