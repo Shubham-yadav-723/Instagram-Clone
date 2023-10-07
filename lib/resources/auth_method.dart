@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unnecessary_null_comparison, duplicate_ignore
 
 import 'dart:typed_data';
 
@@ -35,7 +35,7 @@ class AuthMethods {
           password.isNotEmpty ||
           username.isNotEmpty ||
           bio.isNotEmpty ||
-          file != null) {
+          file!= null) {
         //register the user
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
