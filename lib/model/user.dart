@@ -27,10 +27,10 @@ class User{
     "username":username,
     "uid":uid,
     "email":email,
-    "photoURL":photoUrl,
+    "photoUrl":photoUrl,
     "bio":bio,
     "followers":followers,
-    "following":followers
+    "following":following
     };
 
 

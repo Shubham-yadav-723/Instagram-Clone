@@ -2,13 +2,12 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insta_clone/model/user.dart';
+import 'package:insta_clone/provider/user_provider.dart';
 import 'package:insta_clone/resources/firestore_methods.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/utils/utils.dart';
 import 'package:provider/provider.dart';
-
-import '../model/user.dart';
-import '../provider/user_provider.dart';
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({super.key});
@@ -20,6 +19,7 @@ class AddPostScreen extends StatefulWidget {
 class _AddPostScreenState extends State<AddPostScreen> {
   Uint8List? _file;
   final TextEditingController _descriptionController = TextEditingController();
+  bool _isLoading = false;
 
   _selectImage(BuildContext context) async {
     return showDialog(
@@ -89,7 +89,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               backgroundColor: mobileBackgroundColor,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () {},
+                onPressed: clearImage,
               ),
               title: const Text("Post to"),
               actions: [
@@ -110,15 +110,27 @@ class _AddPostScreenState extends State<AddPostScreen> {
             ),
             body: Column(
               children: [
+                _isLoading
+                    ? const LinearProgressIndicator()
+                    : const Padding(
+                        padding: EdgeInsets.only(
+                          top: 0,
+                        ),
+                      ),
+                      const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CircleAvatar(
                       backgroundImage: NetworkImage(user.photoUrl),
+                      onBackgroundImageError: (exception, stackTrace) {
+                        print("Error loading image: $exception");
+                        // Handle the error, e.g., show a placeholder image or log it.
+                      },
                     ),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.4,
+                      width: MediaQuery.of(context).size.width * 0.3,
                       child: TextField(
                         controller: _descriptionController,
                         decoration: InputDecoration(
@@ -130,7 +142,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     ),
                     SizedBox(
                       height: 45,
-                      width: 45,
+                      width: 50,
                       child: AspectRatio(
                         aspectRatio: 487 / 451,
                         child: Container(
@@ -153,6 +165,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   void postImage(String uid, String username, String profImage) async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       String res = await FireStoreMethods().uploadPost(
         _descriptionController.text,
@@ -163,12 +178,28 @@ class _AddPostScreenState extends State<AddPostScreen> {
       );
 
       if (res == "success") {
+        setState(() {
+          _isLoading = false;
+        });
         showSnackBar('Posted!', context);
+        clearImage();
       } else {
+        setState(() {
+          _isLoading = false;
+        });
         showSnackBar(res, context);
       }
     } catch (e) {
       showSnackBar(e.toString(), context);
     }
   }
+
+
+  void clearImage(){
+    setState(() {
+      _file=null;
+    });
+  }
+
 }
+
