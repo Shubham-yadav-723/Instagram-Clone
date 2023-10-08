@@ -76,7 +76,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             child: IconButton(
               iconSize: 50,
               icon: const Icon(
-                Icons.upload,
+                Icons.add_a_photo,
                 size: 40,
               ),
               onPressed: () {
