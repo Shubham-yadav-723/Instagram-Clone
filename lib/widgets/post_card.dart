@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:insta_clone/model/user.dart';
 import 'package:insta_clone/provider/user_provider.dart';
 import 'package:insta_clone/resources/firestore_methods.dart';
+import 'package:insta_clone/screens/comment_screen.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
@@ -16,8 +17,7 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-
-  bool isLikeAnimating=false;
+  bool isLikeAnimating = false;
   @override
   Widget build(BuildContext context) {
     final User user = Provider.of<UserProvider>(context).getUser;
@@ -94,26 +94,30 @@ class _PostCardState extends State<PostCard> {
             //selection of image
           ),
           GestureDetector(
-            onDoubleTap: () async{
-             await FireStoreMethods().likePost(widget.snap['postId'],  user.uid, widget.snap['likes']);
+            onDoubleTap: () async {
+              await FireStoreMethods().likePost(
+                  widget.snap['postId'], user.uid, widget.snap['likes']);
               setState(() {
-                isLikeAnimating=true;
+                isLikeAnimating = true;
               });
             },
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  width: double.infinity,
-                  child: Image.network(
-                    widget.snap['postUrl'],
-                    fit: BoxFit.cover,
+                Padding(
+                  padding: const EdgeInsets.only(left: 10,right: 10,),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    width: double.infinity,
+                    child: Image.network(
+                      widget.snap['postUrl'],
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
-                  opacity: isLikeAnimating?1:0,
+                  opacity: isLikeAnimating ? 1 : 0,
                   child: LikeAnimation(
                     child: const Icon(
                       Icons.favorite,
@@ -122,9 +126,9 @@ class _PostCardState extends State<PostCard> {
                     ),
                     isAnimating: isLikeAnimating,
                     duration: const Duration(milliseconds: 400),
-                    onEnd: (){
+                    onEnd: () {
                       setState(() {
-                        isLikeAnimating=false;
+                        isLikeAnimating = false;
                       });
                     },
                   ),
@@ -138,15 +142,28 @@ class _PostCardState extends State<PostCard> {
                 isAnimating: widget.snap['likes'].contains(user.uid),
                 smallLike: true,
                 child: IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.favorite,
-                    color: Colors.red,
-                  ),
-                ),
+                    onPressed: () async {
+                      await FireStoreMethods().likePost(widget.snap['postId'],
+                          user.uid, widget.snap['likes']);
+                    },
+                    icon: widget.snap['likes'].contains(user.uid)
+                        ? Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                          )
+                        : const Icon(
+                            Icons.favorite_border,
+                            color: primaryColor,
+                          )),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CommentScreen(),
+                    ),
+                  );
+                },
                 icon: Icon(
                   Icons.comment_outlined,
                 ),
