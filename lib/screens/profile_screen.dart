@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_clone/model/user.dart';
 import 'package:insta_clone/utils/colors.dart';
@@ -15,6 +16,12 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   var userData = {};
+  int postLen=0;
+  int followers=0;
+  int following =0;
+
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -28,7 +35,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .collection('users')
           .doc(widget.uid)
           .get();
+
+      //get post length
+      var postSnap = await FirebaseFirestore.instance
+          .collection("posts")
+          .where("uid", isEqualTo: FirebaseAuth.instance.currentUser!.uid).get();
+          postLen=postSnap.docs.length;
       userData = userSnap.data()!;
+      followers=userSnap.data()!['followers'].length;
+      following=userSnap.data()!['following'].length;
       setState(() {});
     } catch (e) {
       showSnackBar(e.toString(), context);
@@ -55,8 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     CircleAvatar(
                       backgroundColor: Colors.grey,
-                      backgroundImage: NetworkImage(
-                      userData['photoUrl']),
+                      backgroundImage: NetworkImage(userData['photoUrl']),
                       radius: 40,
                     ),
                     Expanded(
@@ -67,9 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              buildStatColumn(20, "Posts"),
-                              buildStatColumn(210, "Followers"),
-                              buildStatColumn(200, "Following"),
+                              buildStatColumn(postLen, "Posts"),
+                              buildStatColumn(followers, "Followers"),
+                              buildStatColumn(following, "Following"),
                             ],
                           ),
                           Row(
@@ -95,14 +109,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.only(top: 15),
                   child: Text(
                     userData['username'],
-                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                 ),
                 Container(
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.only(top: 1),
                   child: Text(
-                    userData['bio'],style: TextStyle(fontSize: 16),
+                    userData['bio'],
+                    style: TextStyle(fontSize: 16),
                   ),
                 )
               ],
