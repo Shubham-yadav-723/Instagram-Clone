@@ -19,6 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int postLen=0;
   int followers=0;
   int following =0;
+  bool isFollowing=false;
 
 
 
@@ -44,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       userData = userSnap.data()!;
       followers=userSnap.data()!['followers'].length;
       following=userSnap.data()!['following'].length;
+      isFollowing=userSnap.data()!['followers'].contains(FirebaseAuth.instance.currentUser!.uid);
       setState(() {});
     } catch (e) {
       showSnackBar(e.toString(), context);
@@ -90,11 +92,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              FollowButton(
+                            FirebaseAuth.instance.currentUser!.uid==widget.uid?FollowButton(
                                 text: 'Edit Profile',
                                 backgroundColor: mobileBackgroundColor,
                                 textColor: primaryColor,
                                 borderColor: Colors.grey,
+                                function: () {},
+                              ):isFollowing?FollowButton(
+                                text: 'Unfollow',
+                                backgroundColor: primaryColor,
+                                textColor: Colors.black,
+                                borderColor: Colors.grey,
+                                function: () {},
+                              ):FollowButton(
+                                text: 'Follow',
+                                backgroundColor: Colors.blue,
+                                textColor: primaryColor,
+                                borderColor: blueColor,
                                 function: () {},
                               )
                             ],
