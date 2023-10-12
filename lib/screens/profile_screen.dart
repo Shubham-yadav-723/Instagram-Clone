@@ -1,20 +1,47 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_clone/model/user.dart';
 import 'package:insta_clone/utils/colors.dart';
+import 'package:insta_clone/utils/utils.dart';
 import 'package:insta_clone/widgets/follow_button.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final String uid;
+  const ProfileScreen({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  var userData = {};
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    try {
+      var userSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.uid)
+          .get();
+      userData = userSnap.data()!;
+      setState(() {});
+    } catch (e) {
+      showSnackBar(e.toString(), context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("username"),
+        title: Text(
+          userData['username'],
+        ),
         backgroundColor: mobileBackgroundColor,
         centerTitle: false,
       ),
@@ -29,8 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     CircleAvatar(
                       backgroundColor: Colors.grey,
                       backgroundImage: NetworkImage(
-                        "https://plus.unsplash.com/premium_photo-1669324357471-e33e71e3f3d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dXJsfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60",
-                      ),
+                      userData['photoUrl']),
                       radius: 40,
                     ),
                     Expanded(
@@ -41,40 +67,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              buildStatColumn(20, "posts"),
-                              buildStatColumn(210, "followers"),
-                              buildStatColumn(200, "following"),
+                              buildStatColumn(20, "Posts"),
+                              buildStatColumn(210, "Followers"),
+                              buildStatColumn(200, "Following"),
                             ],
                           ),
                           Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FollowButton(text: 'Edit Profile',
-                        backgroundColor: mobileBackgroundColor,
-                        textColor: primaryColor,
-                        borderColor: Colors.grey,
-                        function: (){},)
-
-                      ],
-                    )
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FollowButton(
+                                text: 'Edit Profile',
+                                backgroundColor: mobileBackgroundColor,
+                                textColor: primaryColor,
+                                borderColor: Colors.grey,
+                                function: () {},
+                              )
+                            ],
+                          )
                         ],
                       ),
-                      
-                      
                     ),
-                    
                   ],
                 ),
                 Container(
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.only(top: 15),
-                  child: Text("username",style: TextStyle(fontWeight: FontWeight.bold),),
+                  child: Text(
+                    userData['username'],
+                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+                  ),
                 ),
                 Container(
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.only(top: 1),
-                  child: Text("some bio here",),
+                  child: Text(
+                    userData['bio'],style: TextStyle(fontSize: 16),
+                  ),
                 )
               ],
             ),
@@ -98,7 +127,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           margin: const EdgeInsets.only(top: 4),
           child: Text(
             label,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400,color: Colors.grey),
+            style: const TextStyle(
+                fontSize: 15, fontWeight: FontWeight.w400, color: Colors.grey),
           ),
         ),
       ],
