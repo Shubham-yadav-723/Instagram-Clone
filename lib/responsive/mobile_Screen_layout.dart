@@ -33,6 +33,12 @@ void navigationTapped(int page) {
   pageController.jumpToPage(page);
 
   }
+   void onPageChanged(int page) {
+    setState(() {
+      _page=page;
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,10 +107,5 @@ void navigationTapped(int page) {
 
   
 
-  void onPageChanged(int page) {
-    setState(() {
-      _page=page;
-
-    });
-  }
+ 
 }
