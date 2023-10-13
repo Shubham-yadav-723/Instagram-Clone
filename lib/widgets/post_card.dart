@@ -34,7 +34,7 @@ class _PostCardState extends State<PostCard> {
       QuerySnapshot snap = await FirebaseFirestore.instance
         .collection('posts')
         .doc(widget.snap['postId'])
-        .collection('comments') 
+        .collection('comments')
         .get();
 
         commentLength=snap.docs.length;

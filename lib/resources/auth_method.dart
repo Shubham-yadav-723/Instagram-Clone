@@ -11,13 +11,13 @@ class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<model.User> getUserDetails() async{
-    User currentUser=_auth.currentUser!;
+  Future<model.User> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
 
-    DocumentSnapshot snap=await _firestore.collection('users').doc(currentUser.uid).get();
+    DocumentSnapshot snap =
+        await _firestore.collection('users').doc(currentUser.uid).get();
 
     return model.User.fromSnap(snap);
-    
   }
 
   //for sign up user
@@ -35,7 +35,7 @@ class AuthMethods {
           password.isNotEmpty ||
           username.isNotEmpty ||
           bio.isNotEmpty ||
-          file!= null) {
+          file != null) {
         //register the user
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
@@ -44,7 +44,7 @@ class AuthMethods {
             .uploadImageToStorage('profilePics', file, false);
         //adding useer
 
-        model.User user=model.User(
+        model.User user = model.User(
           username: username,
           uid: cred.user!.uid,
           email: email,
@@ -54,9 +54,9 @@ class AuthMethods {
           photoUrl: photoUrl,
         );
 
-
-
-        await _firestore.collection('users').doc(cred.user!.uid).set(user.toJson(),);
+        await _firestore.collection('users').doc(cred.user!.uid).set(
+              user.toJson(),
+            );
 
         res = "success";
       }
@@ -74,13 +74,41 @@ class AuthMethods {
         await _auth.signInWithEmailAndPassword(
             email: email, password: password);
         res = "success";
-      }else{
-        res="please enter valid credentials";
+      } else {
+        res = "please enter valid credentials";
       }
     } catch (err) {
       res = err.toString();
     }
 
     return res;
+  }
+
+  Future<void> followUser(String uid, String followId) async {
+    try {
+      DocumentSnapshot snap =
+          await _firestore.collection('users').doc(uid).get();
+      List following = (snap.data()! as dynamic)['following'];
+
+      if (following.contains(followId)) {
+        await _firestore.collection('users').doc(followId).update({
+          'followers': FieldValue.arrayRemove([uid])
+        });
+
+        await _firestore.collection('users').doc(uid).update({
+          'following': FieldValue.arrayRemove([uid])
+        });
+      }else{
+        await _firestore.collection('users').doc(followId).update({
+          'followers': FieldValue.arrayUnion([uid])
+        });
+
+        await _firestore.collection('users').doc(uid).update({
+          'following': FieldValue.arrayUnion([uid])
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }

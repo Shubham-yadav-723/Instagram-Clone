@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:insta_clone/resources/firestore_methods.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:intl/intl.dart';
 
 class CommentCard extends StatefulWidget {
   final snap;
+  
   const CommentCard({Key? key, required this.snap}) : super(key: key);
 
   @override
@@ -47,7 +49,8 @@ class _CommentCardState extends State<CommentCard> {
                       top: 4,
                     ),
                     child: Text(
-                      DateFormat.yMMMd().format(widget.snap['datePublished'].toDate()),
+                      DateFormat.yMMMd()
+                          .format(widget.snap['datePublished'].toDate()),
                       style:
                           TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
                     ),
@@ -56,12 +59,38 @@ class _CommentCardState extends State<CommentCard> {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Icon(
-              Icons.favorite,
-              size: 16,
-            ),
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => Dialog(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shrinkWrap: true,
+                    children: ['Delete']
+                        .map(
+                          (e) => InkWell(
+                            onTap: () async {
+                              FireStoreMethods().deleteComment(
+                                  widget.snap['postId'],
+                                  widget.snap['commentId']);
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                              child: Text(e),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              );
+            },
+            icon: Icon(Icons.more_vert),
           )
         ],
       ),
